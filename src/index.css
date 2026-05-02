@@ -1,0 +1,52 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-primary:   #0a0a10;
+  --bg-secondary: #12121c;
+  --sidebar-bg:   #14142a;
+  --header-bg:    #0d0d22;
+  --border:       #1e1e38;
+
+  --text-primary:   #e2e8f0;
+  --text-secondary: #6b7a99;
+  --text-muted:     #3d4a66;
+
+  --accent-orange: #ff6b35;
+  --accent-teal:   #4ecdc4;
+  --accent-red:    #e94560;
+  --accent-purple: #7c6fff;
+
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent-purple);
+  outline-offset: 2px;
+}
