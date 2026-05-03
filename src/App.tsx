@@ -10,6 +10,7 @@ import {
 import Fretboard from './components/Fretboard';
 import Menu from './components/Menu';
 import InfoPanel from './components/InfoPanel';
+import Exercise from './components/Exercise';
 import './App.css';
 
 const DEFAULT_STATE: AppState = {
@@ -27,8 +28,11 @@ export default function App() {
       const scale = SCALES.find(s => s.id === state.selectedScale);
       return scale ? getFretboardScaleNotes(state.selectedRoot, scale.intervals) : [];
     }
-    const chord = CHORD_SHAPES.find(c => c.id === state.selectedChord);
-    return chord ? getFretboardChordNotes(chord) : [];
+    if (state.mode === 'chords') {
+      const chord = CHORD_SHAPES.find(c => c.id === state.selectedChord);
+      return chord ? getFretboardChordNotes(chord) : [];
+    }
+    return [];
   }, [state.mode, state.selectedRoot, state.selectedScale, state.selectedChord]);
 
   const mutedStrings = useMemo(() => {
@@ -52,12 +56,18 @@ export default function App() {
       </aside>
 
       <main className="app-main">
-        <Fretboard
-          highlightedNotes={highlightedNotes}
-          mutedStrings={mutedStrings}
-          showIntervals={state.mode === 'scales'}
-        />
-        <InfoPanel state={state} />
+        {state.mode === 'exercise' ? (
+          <Exercise />
+        ) : (
+          <>
+            <Fretboard
+              highlightedNotes={highlightedNotes}
+              mutedStrings={mutedStrings}
+              showIntervals={state.mode === 'scales'}
+            />
+            <InfoPanel state={state} />
+          </>
+        )}
       </main>
     </div>
   );

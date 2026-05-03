@@ -5,22 +5,32 @@
 }
 
 :root {
-  --bg-primary:   #0a0a10;
-  --bg-secondary: #12121c;
-  --sidebar-bg:   #14142a;
-  --header-bg:    #0d0d22;
-  --border:       #1e1e38;
+  /* Exact palette from the swatch */
+  --mauve:    #B47EB3;
+  --yellow:   #FDF5BF;
+  --pink:     #FFD5FF;
+  --teal:     #92D1C3;
+  --sage:     #8BB8A8;
 
-  --text-primary:   #e2e8f0;
-  --text-secondary: #6b7a99;
-  --text-muted:     #3d4a66;
+  --bg-primary:   #FDF5BF;
+  --bg-secondary: #FFD5FF;
+  --sidebar-bg:   #e6f7f2;
+  --header-bg:    #B47EB3;
+  --border:       #c9a8c8;
+  --border-dark:  #2d1a2e;
 
-  --accent-orange: #ff6b35;
-  --accent-teal:   #4ecdc4;
-  --accent-red:    #e94560;
-  --accent-purple: #7c6fff;
+  --text-primary:   #2d1a2e;
+  --text-secondary: #6a4870;
+  --text-muted:     #a888a8;
+  --text-on-header: #ffffff;
 
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* Role assignments */
+  --accent-root:  #B47EB3;   /* mauve  — root notes    */
+  --accent-tone:  #92D1C3;   /* teal   — scale tones   */
+  --accent-sage:  #8BB8A8;
+  --accent-pink:  #FFD5FF;
+
+  font-family: 'Nunito', system-ui, sans-serif;
   font-size: 14px;
   color: var(--text-primary);
   background: var(--bg-primary);
@@ -41,12 +51,45 @@ body {
 button {
   cursor: pointer;
   border: none;
-  font-family: inherit;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-size: inherit;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  font-weight: 700;
 }
 
 button:focus-visible {
-  outline: 2px solid var(--accent-purple);
+  outline: 3px solid var(--mauve);
   outline-offset: 2px;
+}
+
+/* ── Global animations ── */
+@keyframes notePopIn {
+  0%   { opacity: 0; transform: scale(0.2); }
+  65%  { transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rootPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.75; }
+}
+
+@keyframes floatUpDown {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-5px); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  20%       { transform: rotate(-4deg) translateY(0); }
+  60%       { transform: rotate(4deg) translateY(0); }
+}
+
+@keyframes shimmer {
+  0%, 100% { box-shadow: 0 3px 0 var(--border-dark); }
+  50%       { box-shadow: 0 3px 0 var(--border-dark), 0 0 12px rgba(180,126,179,0.55); }
 }

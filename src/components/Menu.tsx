@@ -16,7 +16,7 @@ const Menu: React.FC<MenuProps> = ({ state, onChange }) => {
     <nav className="menu">
       {/* Mode toggle */}
       <div className="menu-section">
-        <div className="mode-toggle">
+        <div className="mode-toggle mode-toggle-3">
           <button
             className={state.mode === 'scales' ? 'mode-btn active' : 'mode-btn'}
             onClick={() => set({ mode: 'scales' })}
@@ -28,6 +28,12 @@ const Menu: React.FC<MenuProps> = ({ state, onChange }) => {
             onClick={() => set({ mode: 'chords' })}
           >
             Chords
+          </button>
+          <button
+            className={state.mode === 'exercise' ? 'mode-btn active' : 'mode-btn'}
+            onClick={() => set({ mode: 'exercise' })}
+          >
+            🎯 Quiz
           </button>
         </div>
       </div>

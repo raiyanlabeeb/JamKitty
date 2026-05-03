@@ -21,7 +21,7 @@ export interface ChordShape {
   frets: number[]; // [low E, A, D, G, B, high E] — -1 = muted, 0 = open
 }
 
-export type MenuMode = 'scales' | 'chords';
+export type MenuMode = 'scales' | 'chords' | 'exercise';
 
 export interface AppState {
   mode: MenuMode;
