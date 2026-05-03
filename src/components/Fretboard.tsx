@@ -12,6 +12,7 @@ interface FretboardProps {
   highlightedNotes: FretNote[];
   mutedStrings: Set<number>;
   showIntervals: boolean;
+  showDegrees?: boolean;
   // Exercise mode
   onFretClick?: (stringIdx: number, fret: number) => void;
   clickFeedback?: ClickFeedback | null;
@@ -41,10 +42,17 @@ const STRING_STROKE = [2.6, 2.1, 1.8, 1.4, 1.1, 0.9];
 const SINGLE_MARKERS = [3, 5, 7, 9];
 const DOUBLE_MARKERS = [12];
 
+const DEGREE_NAMES: Record<string, string> = {
+  R: '1', b2: '♭2', '2': '2', b3: '♭3', '3': '3',
+  '4': '4', b5: '♭5', '5': '5', b6: '♭6', '6': '6',
+  b7: '♭7', '7': '7',
+};
+
 const Fretboard: React.FC<FretboardProps> = ({
   highlightedNotes,
   mutedStrings,
   showIntervals,
+  showDegrees = false,
   onFretClick,
   clickFeedback,
   highlightString,
@@ -228,7 +236,10 @@ const Fretboard: React.FC<FretboardProps> = ({
           const cy = stringY(note.string);
           const fill   = note.isRoot ? '#B47EB3' : '#92D1C3';
           const stroke = note.isRoot ? '#7a4e80' : '#5a9888';
-          const label  = showIntervals ? (note.intervalName ?? note.note) : note.note;
+          const intervalName = note.intervalName ?? note.note;
+          const label = showIntervals && showDegrees
+            ? (DEGREE_NAMES[intervalName] ?? intervalName)
+            : note.note;
 
           return (
             <g key={`${note.string}-${note.fret}`}

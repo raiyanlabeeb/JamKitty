@@ -21,6 +21,14 @@ export interface ChordShape {
   frets: number[]; // [low E, A, D, G, B, high E] — -1 = muted, 0 = open
 }
 
+export interface DiatonicChord {
+  degree: number;
+  roman: string;
+  root: NoteName;
+  quality: 'major' | 'minor' | 'diminished' | 'augmented';
+  notes: [NoteName, NoteName, NoteName];
+}
+
 export type MenuMode = 'scales' | 'chords' | 'exercise';
 
 export interface AppState {
@@ -28,4 +36,5 @@ export interface AppState {
   selectedRoot: NoteName;
   selectedScale: string;
   selectedChord: string;
+  selectedPosition: number | null; // null = full neck; number = starting fret of 5-fret window
 }

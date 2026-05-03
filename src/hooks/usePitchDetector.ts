@@ -33,6 +33,7 @@ const STABILITY = 4;
 export function usePitchDetector(active: boolean) {
   const [detectedNote, setDetectedNote] = useState<NoteName | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
+  const [analyserNode, setAnalyserNode] = useState<AnalyserNode | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
 
   // Refs so clearDetected() can reach into the running tick loop
@@ -50,6 +51,7 @@ export function usePitchDetector(active: boolean) {
       cleanupRef.current?.();
       cleanupRef.current = null;
       clearDetected();
+      setAnalyserNode(null);
       return;
     }
 
@@ -65,6 +67,7 @@ export function usePitchDetector(active: boolean) {
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 4096;
         ctx.createMediaStreamSource(stream).connect(analyser);
+        setAnalyserNode(analyser);
 
         const buffer = new Float32Array(analyser.fftSize);
 
@@ -93,6 +96,7 @@ export function usePitchDetector(active: boolean) {
           cancelAnimationFrame(rafId);
           stream.getTracks().forEach(t => t.stop());
           ctx.close();
+          setAnalyserNode(null);
         };
       })
       .catch(() => {
@@ -106,5 +110,5 @@ export function usePitchDetector(active: boolean) {
     };
   }, [active, clearDetected]);
 
-  return { detectedNote, micError, clearDetected };
+  return { detectedNote, micError, clearDetected, analyserNode };
 }

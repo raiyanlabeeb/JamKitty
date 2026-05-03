@@ -6,6 +6,8 @@ import {
   getFretboardScaleNotes,
   getFretboardChordNotes,
   getMutedStrings,
+  getDiatonicChords,
+  getChordQualityIntervals,
 } from './utils/musicTheory';
 import Fretboard from './components/Fretboard';
 import Menu from './components/Menu';
@@ -18,22 +20,46 @@ const DEFAULT_STATE: AppState = {
   selectedRoot: 'C',
   selectedScale: 'major',
   selectedChord: 'Am',
+  selectedPosition: null,
 };
 
 export default function App() {
   const [state, setState] = useState<AppState>(DEFAULT_STATE);
+  const [showDegrees, setShowDegrees] = useState(false);
+  const [selectedDiatonicDegree, setSelectedDiatonicDegree] = useState<number | null>(null);
+
+  function handleStateChange(next: AppState) {
+    if (next.mode !== 'scales') setShowDegrees(false);
+    if (next.selectedRoot !== state.selectedRoot || next.selectedScale !== state.selectedScale) {
+      setSelectedDiatonicDegree(null);
+    }
+    setState(next);
+  }
+
+  const diatonicChords = useMemo(() => {
+    if (state.mode !== 'scales') return [];
+    const scale = SCALES.find(s => s.id === state.selectedScale);
+    return scale ? getDiatonicChords(state.selectedRoot, scale.intervals) : [];
+  }, [state.mode, state.selectedRoot, state.selectedScale]);
 
   const highlightedNotes = useMemo(() => {
     if (state.mode === 'scales') {
       const scale = SCALES.find(s => s.id === state.selectedScale);
-      return scale ? getFretboardScaleNotes(state.selectedRoot, scale.intervals) : [];
+      if (!scale) return [];
+
+      if (selectedDiatonicDegree !== null && diatonicChords[selectedDiatonicDegree]) {
+        const chord = diatonicChords[selectedDiatonicDegree];
+        return getFretboardScaleNotes(chord.root, getChordQualityIntervals(chord.quality), state.selectedPosition);
+      }
+
+      return getFretboardScaleNotes(state.selectedRoot, scale.intervals, state.selectedPosition);
     }
     if (state.mode === 'chords') {
       const chord = CHORD_SHAPES.find(c => c.id === state.selectedChord);
       return chord ? getFretboardChordNotes(chord) : [];
     }
     return [];
-  }, [state.mode, state.selectedRoot, state.selectedScale, state.selectedChord]);
+  }, [state, selectedDiatonicDegree, diatonicChords]);
 
   const mutedStrings = useMemo(() => {
     if (state.mode !== 'chords') return new Set<number>();
@@ -52,7 +78,7 @@ export default function App() {
       </header>
 
       <aside className="app-sidebar">
-        <Menu state={state} onChange={setState} />
+        <Menu state={state} onChange={handleStateChange} />
       </aside>
 
       <main className="app-main">
@@ -64,8 +90,16 @@ export default function App() {
               highlightedNotes={highlightedNotes}
               mutedStrings={mutedStrings}
               showIntervals={state.mode === 'scales'}
+              showDegrees={showDegrees}
             />
-            <InfoPanel state={state} />
+            <InfoPanel
+              state={state}
+              showDegrees={showDegrees}
+              onToggleDegrees={() => setShowDegrees(d => !d)}
+              diatonicChords={diatonicChords}
+              selectedDiatonicDegree={selectedDiatonicDegree}
+              onSelectDiatonicDegree={setSelectedDiatonicDegree}
+            />
           </>
         )}
       </main>

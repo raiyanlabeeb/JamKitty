@@ -9,6 +9,16 @@ interface MenuProps {
   onChange: (next: AppState) => void;
 }
 
+const POSITIONS: { label: string; fret: number | null }[] = [
+  { label: 'Full', fret: null },
+  { label: 'Open', fret: 0 },
+  { label: 'III', fret: 3 },
+  { label: 'V', fret: 5 },
+  { label: 'VII', fret: 7 },
+  { label: 'IX', fret: 9 },
+  { label: 'XII', fret: 12 },
+];
+
 const Menu: React.FC<MenuProps> = ({ state, onChange }) => {
   const set = (partial: Partial<AppState>) => onChange({ ...state, ...partial });
 
@@ -65,6 +75,21 @@ const Menu: React.FC<MenuProps> = ({ state, onChange }) => {
                   onClick={() => set({ selectedScale: scale.id })}
                 >
                   {scale.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="menu-section">
+            <h3 className="section-label">Position</h3>
+            <div className="position-grid">
+              {POSITIONS.map(({ label, fret }) => (
+                <button
+                  key={label}
+                  className={state.selectedPosition === fret ? 'pos-btn active' : 'pos-btn'}
+                  onClick={() => set({ selectedPosition: fret })}
+                >
+                  {label}
                 </button>
               ))}
             </div>
