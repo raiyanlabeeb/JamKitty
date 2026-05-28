@@ -4,15 +4,15 @@ import { SCALES } from './data/scales';
 import { CHORD_SHAPES } from './data/chords';
 import {
   getFretboardScaleNotes,
-  getFretboardChordNotes,
-  getMutedStrings,
   getDiatonicChords,
   getChordQualityIntervals,
+  getIntervalsForChordId,
 } from './utils/musicTheory';
 import Fretboard from './components/Fretboard';
 import Menu from './components/Menu';
 import InfoPanel from './components/InfoPanel';
 import Exercise from './components/Exercise';
+import ProgressionBuilder from './components/ProgressionBuilder';
 import './App.css';
 
 const DEFAULT_STATE: AppState = {
@@ -21,6 +21,7 @@ const DEFAULT_STATE: AppState = {
   selectedScale: 'major',
   selectedChord: 'Am',
   selectedPosition: null,
+  selectedChordPosition: null,
 };
 
 export default function App() {
@@ -56,16 +57,13 @@ export default function App() {
     }
     if (state.mode === 'chords') {
       const chord = CHORD_SHAPES.find(c => c.id === state.selectedChord);
-      return chord ? getFretboardChordNotes(chord) : [];
+      if (!chord) return [];
+      return getFretboardScaleNotes(chord.root, getIntervalsForChordId(state.selectedChord), state.selectedChordPosition);
     }
     return [];
   }, [state, selectedDiatonicDegree, diatonicChords]);
 
-  const mutedStrings = useMemo(() => {
-    if (state.mode !== 'chords') return new Set<number>();
-    const chord = CHORD_SHAPES.find(c => c.id === state.selectedChord);
-    return chord ? getMutedStrings(chord) : new Set<number>();
-  }, [state.mode, state.selectedChord]);
+  const mutedStrings = useMemo(() => new Set<number>(), []);
 
   return (
     <div className="app">
@@ -84,6 +82,8 @@ export default function App() {
       <main className="app-main">
         {state.mode === 'exercise' ? (
           <Exercise />
+        ) : state.mode === 'progression' ? (
+          <ProgressionBuilder />
         ) : (
           <>
             <Fretboard

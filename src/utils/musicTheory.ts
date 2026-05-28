@@ -112,6 +112,15 @@ export function getDiatonicChords(root: NoteName, intervals: number[]): Diatonic
   });
 }
 
+export function getIntervalsForChordId(id: string): number[] {
+  if (id.endsWith('maj9')) return [0, 2, 4, 7, 11];
+  if (id.endsWith('maj7')) return [0, 4, 7, 11];
+  if (id.endsWith('m7'))   return [0, 3, 7, 10];
+  if (id.endsWith('7'))    return [0, 4, 7, 10];
+  if (id.endsWith('m'))    return [0, 3, 7];
+  return [0, 4, 7];
+}
+
 export function getChordQualityIntervals(quality: DiatonicChord['quality']): number[] {
   switch (quality) {
     case 'major':      return [0, 4, 7];

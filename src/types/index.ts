@@ -29,12 +29,13 @@ export interface DiatonicChord {
   notes: [NoteName, NoteName, NoteName];
 }
 
-export type MenuMode = 'scales' | 'chords' | 'exercise';
+export type MenuMode = 'scales' | 'chords' | 'exercise' | 'progression';
 
 export interface AppState {
   mode: MenuMode;
   selectedRoot: NoteName;
   selectedScale: string;
   selectedChord: string;
-  selectedPosition: number | null; // null = full neck; number = starting fret of 5-fret window
+  selectedPosition: number | null;      // scales: null = full neck, number = starting fret
+  selectedChordPosition: number | null; // chords: null = full neck, number = starting fret
 }

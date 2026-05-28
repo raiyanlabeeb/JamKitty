@@ -118,4 +118,61 @@ export function playDiatonicChord(root: NoteName, quality: DiatonicChord['qualit
   return notes.length * 100 + 1200;
 }
 
+export function startProgressionLoop(
+  chords: ChordShape[],
+  bpm: number,
+  onChordChange: (index: number) => void,
+): () => void {
+  let stopped = false;
+  let currentIdx = 0;
+  const msPerChord = Math.round((60_000 / bpm) * 2);
+  const stepMs = 80;
+  const localTimeouts: ReturnType<typeof setTimeout>[] = [];
+
+  async function init() {
+    await Tone.start();
+    if (!samplerReady) await getFallback();
+    tick();
+  }
+
+  function tick() {
+    if (stopped || chords.length === 0) return;
+
+    const chord = chords[currentIdx];
+    onChordChange(currentIdx);
+    currentIdx = (currentIdx + 1) % chords.length;
+
+    const notes: number[] = [];
+    chord.frets.forEach((fret, s) => { if (fret !== -1) notes.push(OPEN_STRING_MIDI[s] + fret); });
+
+    const durS = (msPerChord / 1000) * 0.85;
+    notes.forEach((midi, i) => {
+      const t = setTimeout(() => {
+        if (stopped) return;
+        if (samplerReady && sampler) {
+          sampler!.triggerAttackRelease(midiToToneNote(midi), durS);
+        } else if (eq) {
+          const synth = new Tone.PluckSynth({ attackNoise: 4.5, dampening: 3200, resonance: 0.975 });
+          synth.connect(eq);
+          activeSynths.push(synth);
+          synth.triggerAttack(midiToToneNote(midi));
+        }
+      }, i * stepMs);
+      localTimeouts.push(t);
+    });
+
+    localTimeouts.push(setTimeout(tick, msPerChord));
+  }
+
+  init();
+
+  return () => {
+    stopped = true;
+    localTimeouts.forEach(clearTimeout);
+    if (sampler && samplerReady) { try { sampler.releaseAll(); } catch { /* ignore */ } }
+    activeSynths.forEach(s => { try { s.dispose(); } catch { /* ignore */ } });
+    activeSynths = [];
+  };
+}
+
 export { STANDARD_TUNING };

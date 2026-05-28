@@ -2,7 +2,30 @@ import React from 'react';
 import type { AppState, NoteName } from '../types';
 import { CHROMATIC_NOTES } from '../data/notes';
 import { SCALES } from '../data/scales';
-import { CHORD_SHAPES, CHORD_CATEGORIES } from '../data/chords';
+import { CHORD_SHAPES } from '../data/chords';
+
+const CHORD_QUALITIES = [
+  { label: 'Major', suffix: '' },
+  { label: 'Minor', suffix: 'm' },
+  { label: 'Dom 7', suffix: '7' },
+  { label: 'Min 7', suffix: 'm7' },
+  { label: 'Maj 7', suffix: 'maj7' },
+  { label: 'Maj 9', suffix: 'maj9' },
+];
+
+function chordRoot(id: string): string {
+  for (const q of [...CHORD_QUALITIES].sort((a, b) => b.suffix.length - a.suffix.length)) {
+    if (q.suffix && id.endsWith(q.suffix)) return id.slice(0, -q.suffix.length);
+  }
+  return id;
+}
+
+function chordSuffix(id: string): string {
+  for (const q of [...CHORD_QUALITIES].sort((a, b) => b.suffix.length - a.suffix.length)) {
+    if (q.suffix && id.endsWith(q.suffix)) return q.suffix;
+  }
+  return '';
+}
 
 interface MenuProps {
   state: AppState;
@@ -26,7 +49,7 @@ const Menu: React.FC<MenuProps> = ({ state, onChange }) => {
     <nav className="menu">
       {/* Mode toggle */}
       <div className="menu-section">
-        <div className="mode-toggle mode-toggle-3">
+        <div className="mode-toggle mode-toggle-4">
           <button
             className={state.mode === 'scales' ? 'mode-btn active' : 'mode-btn'}
             onClick={() => set({ mode: 'scales' })}
@@ -38,6 +61,12 @@ const Menu: React.FC<MenuProps> = ({ state, onChange }) => {
             onClick={() => set({ mode: 'chords' })}
           >
             Chords
+          </button>
+          <button
+            className={state.mode === 'progression' ? 'mode-btn active' : 'mode-btn'}
+            onClick={() => set({ mode: 'progression' })}
+          >
+            🎵 Groove
           </button>
           <button
             className={state.mode === 'exercise' ? 'mode-btn active' : 'mode-btn'}
@@ -98,28 +127,61 @@ const Menu: React.FC<MenuProps> = ({ state, onChange }) => {
       )}
 
       {state.mode === 'chords' && (
-        <div className="menu-section">
-          {CHORD_CATEGORIES.map(cat => (
-            <div key={cat.label}>
-              <h3 className="section-label">{cat.label}</h3>
-              <div className="chord-grid">
-                {cat.ids.map(id => {
-                  const chord = CHORD_SHAPES.find(c => c.id === id);
-                  if (!chord) return null;
-                  return (
-                    <button
-                      key={id}
-                      className={state.selectedChord === id ? 'chord-btn active' : 'chord-btn'}
-                      onClick={() => set({ selectedChord: id })}
-                    >
-                      {chord.name}
-                    </button>
-                  );
-                })}
-              </div>
+        <>
+          <div className="menu-section">
+            <h3 className="section-label">Root Note</h3>
+            <div className="note-grid">
+              {CHROMATIC_NOTES.map(note => {
+                const newId = note + chordSuffix(state.selectedChord);
+                const targetId = CHORD_SHAPES.some(c => c.id === newId) ? newId : note;
+                return (
+                  <button
+                    key={note}
+                    className={`note-btn ${chordRoot(state.selectedChord) === note ? 'active' : ''}`}
+                    onClick={() => set({ selectedChord: targetId })}
+                  >
+                    {note}
+                  </button>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </div>
+
+          <div className="menu-section">
+            <h3 className="section-label">Quality</h3>
+            <div className="chord-quality-grid">
+              {CHORD_QUALITIES.map(q => {
+                const newId = chordRoot(state.selectedChord) + q.suffix;
+                const available = CHORD_SHAPES.some(c => c.id === newId);
+                return (
+                  <button
+                    key={q.label}
+                    className={`quality-btn ${chordSuffix(state.selectedChord) === q.suffix ? 'active' : ''}`}
+                    disabled={!available}
+                    onClick={() => set({ selectedChord: newId })}
+                  >
+                    {q.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="menu-section">
+            <h3 className="section-label">Position</h3>
+            <div className="position-grid">
+              {POSITIONS.map(({ label, fret }) => (
+                <button
+                  key={label}
+                  className={state.selectedChordPosition === fret ? 'pos-btn active' : 'pos-btn'}
+                  onClick={() => set({ selectedChordPosition: fret })}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
       )}
     </nav>
   );
